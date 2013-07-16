@@ -8,7 +8,8 @@
   },
   "main": "montage",
   "bin": {
-    "montage": "bin/montage"
+    "montage": "bin/montage",
+    "mcs": "bin/mcs"
   },
   "overlay": {
     "browser": {

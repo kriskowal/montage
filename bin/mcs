@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+var MCS = require("../core/component-sheet");
+
+process.stdin.setEncoding("utf-8");
+process.stdin.resume();
+
+var input = "";
+process.stdin.on("data", function (data) {
+    input += data;
+});
+process.stdin.on("end", function () {
+    var output;
+    var type;
+
+    var match = /^([ \t\r]*\n)*([ \t]*)([^ ][\s\S]*)/.exec(input);
+    var leader = match[2];
+    input = match[3];
+
+    var stripped = strip(input);
+    if (stripped !== input) {
+        input = stripped;
+        stripped = true;
+    } else {
+        stripped = false;
+    }
+
+    try {
+        var json = JSON.parse(input);
+        output = MCS.serializationToComponentSheet(json);
+        type = "application/mcs";
+    } catch (serializationError) {
+        try {
+            var serialization = MCS.componentSheetToSerialization(input);
+            output = JSON.stringify(serialization, null, 4) + "\n";
+            type = "text/montage-serialization";
+        } catch (mcsError) {
+            console.log(mcsError.stack);
+            console.log(serializationError.stack);
+        }
+    }
+
+    if (stripped) {
+        output = lead(output, "    ");
+        output = "<script type=" + JSON.stringify(type) + ">\n" + output + "</script>";
+    }
+
+    output = lead(output, leader);
+    process.stdout.write(output);
+
+});
+
+function lead(lines, leader) {
+    return lines.split(/\n/).map(function (line) {
+        if (line) {
+            return leader + line;
+        } else {
+            return "";
+        }
+    }).join("\n");
+}
+
+function strip(input) {
+    input = input.replace(/^<script[^>]*>/, "");
+    input = input.replace(/<\/script>\s*$/, "");
+    return input;
+}
+
+function strop(output, stripped, mcs) {
+    if (!stripped)
+        return output;
+    if (mcs) {
+    } else {
+    }
+    return output;
+}
+
