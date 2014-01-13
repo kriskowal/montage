@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+    <head>
+        <script type="text/javascript" src="../../montage.js" data-package="../"></script>
+        <script type="text/montage-serialization">{
+            "owner": {
+                "value": {}
+            },
+            "locationController": {
+                "prototype": "montage/core/location-controller"
+            },
+            "routeController": {
+                "prototype": "montage/core/route-controller",
+                "properties": {
+                    "routes": {
+                        "photos/+photoId&": "photos",
+                        "photos/+photoId/comments/+commentId&": "photo-comments"
+                    }
+                },
+                "bindings": {
+                    "path": {
+                        "<->": "@locationController.remainingPath"
+                    }
+                }
+            },
+            "substitution": {
+                "prototype": "montage/ui/substitution.reel",
+                "properties": {
+                    "element": {"#": "substitution"}
+                },
+                "bindings": {
+                    "switchValue": {
+                        "<-": "@routeController.state.destination"
+                    }
+                }
+            },
+            "photoId": {
+                "prototype": "montage/ui/text.reel",
+                "properties": {
+                    "element": {"#": "photoId"}
+                },
+                "bindings": {
+                    "value": {
+                        "<-": "@routeController.state.parameters.photoId"
+                    }
+                }
+            },
+            "commentId": {
+                "prototype": "montage/ui/text.reel",
+                "properties": {
+                    "element": {"#": "commentId"}
+                },
+                "bindings": {
+                    "value": {
+                        "<-": "@routeController.state.parameters.commentId"
+                    }
+                }
+            }
+        }</script>
+    </head>
+    <body>
+        Photo <span data-montage-id="photoId"></span>
+        <div data-montage-id="substitution">
+            <div data-arg="photos">
+                <a href="#!/photos/10/comments/20">comment</a>
+            </div>
+            <div data-arg="photo-comments">
+                Comments <span data-montage-id="commentId"></span>
+            </div>
+        </div>
+    </body>
+</html>

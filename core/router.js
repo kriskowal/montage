@@ -91,18 +91,12 @@ exports.Router = Montage.specialize({
             for (var i = table.length - 1; i >= 0; i--) {
                 var route = table[i];
                 var terms = route.terms;
-                for (var j = 0; j < terms.length; j++) {
-                    var term = terms[j];
-                    if (!term.optional && state.parameters[term.name] == null) {
-                        continue;
-                    }
-                }
                 var parts = [];
                 for (var j = 0; j < terms.length; j++) {
                     var term = terms[j];
                     if (term.type === "literal") {
                         parts.push(term.value);
-                    } else if (state.parameters[term.name] != null) {
+                    } else if (state.parameters != null && state.parameters[term.name] != null) {
                         if (term.slash) {
                             parts.push("/");
                         }
@@ -119,16 +113,17 @@ exports.Router = Montage.specialize({
                         parts.push("/");
                     }
                 }
-                return parts.join("");
+                return parts.join("") + (state.remainingPath || "");
             }
         }
     },
 
-    observeStringify: {
-        value: function (emit, state, scope) {
+    observePath: {
+        value: function (emit, scope) {
             var self = this;
+            var state = scope.value;
             return Observers.observeProperty(state, "parameters", function changeParameters(parameters) {
-                return Observers.observeProperty(state, "path", function changePath() {
+                return Observers.observeProperty(state, "remainingPath", function changePath(remainingPath) {
                     return Observers.observeProperty(state, "destination", function changeDestination(destination) {
                         var terms = self.termsForDestination[destination];
                         if (!terms) {

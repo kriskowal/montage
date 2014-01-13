@@ -3,34 +3,42 @@ var Montage = require("./core").Montage;
 
 var hashbang = /#!\/(.*)/;
 
+// TODO need a system for a component to ask its router for a link to a
+// particular state, propagating the url composition upward through parent
+// references.
+// TODO need to establish a singleton location controller for a
+// `RouteController` with no specified parent.
+
 /**
  * The `LocationController` binds the containing window location to internal
- * application state through a `path` and `query` properties. The `path`
- * contains the relevant portion of the location pertaining to application
- * state.
+ * application state through a `remainingPath` and `query` properties. The
+ * `remainingPath` contains the relevant portion of the location pertaining to
+ * application state.
  *
  * The `LocationController` has two modes of use. In development it is most
- * practical to use the hash portion of the URL for the `path`, following the
- * hashbang, `#!/`, notation and may include a query, after `?`. This is the
- * mode used by default.
+ * practical to use the hash portion of the URL for the `remainingPath`,
+ * following the hashbang, `#!/`, notation and may include a query, after `?`.
+ * This is the mode used by default.
  *
  * In production, the page may include a `<base>` tag indicating the portion of
- * the page’s location that preceeds the `path`. This is useful in conjunction
- * with a back end service or a service worker that unconditionally loads the
- * application’s `index.html` for all requests under the given base path.
- * Having a `<base>` tag in `index.html` is sufficient to enable this mode.
+ * the page’s location that preceeds the `remainingPath`. This is useful in
+ * conjunction with a back end service or a service worker that unconditionally
+ * loads the application’s `index.html` for all requests under the given base
+ * path.  Having a `<base>` tag in `index.html` is sufficient to enable this
+ * mode.
  *
  * The `LocationController` will use `popstate` or `hashchange` events to
  * attempt to synchornize changes to the window location to corresponding
- * changes to the `path` and `query` properties, prefering `popstate`.
+ * changes to the `remainingPath` and `query` properties, prefering `popstate`.
  *
- * Changes to the `LocationController` `path` and `query` properties will be
- * automatically reflected on the URL and will replace the current entry in the
- * browser history. Use the `mark` method to add a new entry to the history
- * such that users can use the back button to return to the current state.
+ * Changes to the `LocationController` `remainingPath` and `query` properties
+ * will be automatically reflected on the URL and will replace the current
+ * entry in the browser history. Use the `mark` method to add a new entry to
+ * the history such that users can use the back button to return to the current
+ * state.
  *
- * @classdesc Binds the window location to application `path` and `query`
- * properties.
+ * @classdesc Binds the window location to application `remainingPath` and
+ * `query` properties.
  */
 exports.LocationController = Montage.specialize({
 
@@ -40,7 +48,7 @@ exports.LocationController = Montage.specialize({
      * The property is two-way bindable.
      * @type {string}
      */
-    path: {
+    remainingPath: {
         value: null
     },
 
@@ -72,7 +80,7 @@ exports.LocationController = Montage.specialize({
             }
             window.addEventListener("hashchange", this);
             window.addEventListener("popstate", this);
-            this.addPathChangeListener("path", this, "handlePathPropertyChange");
+            this.addPathChangeListener("remainingPath", this, "handleRemainingPathPropertyChange");
 
             var document = window.document;
             var bases = document.getElementsByTagName("base");
@@ -126,10 +134,10 @@ exports.LocationController = Montage.specialize({
                 var queryIndex = path.indexOf("?");
                 if (queryIndex >= 0) {
                     this.query = path.slice(queryIndex + 1);
-                    this.path = path.slice(0, queryIndex);
+                    this.remainingPath = path.slice(0, queryIndex);
                 } else {
                     this.query = "";
-                    this.path = path;
+                    this.remainingPath = path;
                 }
             } else if (base) {
                 var location = "" + window.location;
@@ -148,12 +156,12 @@ exports.LocationController = Montage.specialize({
                 } else {
                     this.query = "";
                 }
-                this.path = remaining;
+                this.remainingPath = remaining;
             }
         }
     },
 
-    handlePathPropertyChange: {
+    handleRemainingPathPropertyChange: {
         value: function (path) {
             if (path == null) {
                 return;

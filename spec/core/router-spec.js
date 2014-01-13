@@ -133,7 +133,7 @@ describe("stringify", function () {
 
 var Scope = require("frb/scope");
 
-describe("observeStringify", function () {
+describe("observePath", function () {
     it("reacts to changes in parameters for the destination", function () {
 
         var state = {
@@ -144,9 +144,9 @@ describe("observeStringify", function () {
         };
         var path;
 
-        var cancel = router.observeStringify(function (_path) {
+        var cancel = router.observePath(function (_path) {
             path = _path;
-        }, state, new Scope());
+        }, new Scope(state));
 
         expect(path).toBe("/notes/detail");
 
@@ -168,9 +168,9 @@ describe("observeStringify", function () {
         };
         var path;
 
-        var cancel = router.observeStringify(function (_path) {
+        var cancel = router.observePath(function (_path) {
             path = _path;
-        }, state, new Scope());
+        }, new Scope(state));
         expect(path).toBe("/photos/");
 
         state.parameters.photoIds.push(10);
